@@ -1,14 +1,8 @@
 const http = require('http')
 const HEADER = {'Content-Type': 'application/json'}
-const { RequestContext } = require('./class/RequestContext.js')
-
-function removeTrailingSlash(string) {
-    if(string) {
-        return string.replace(/\/*$/g, '')
-    } else {
-        return null
-    }
-}
+const { RequestContext } = require('./class/RequestContext.js');
+const { Route } = require('./class/Route.js');
+const { removeTrailingSlash } = require('./util/removeTrailingSlash.js')
 
 function testRoute(rt, pathA) {
     for(let i=0;i<rt.matcher.length;i++) {
@@ -109,42 +103,15 @@ class Ribbon {
     }
 
     route(path, resolver) {
-        let pathProto = `${this.options.rootPath}${removeTrailingSlash(path)}`
+        let rt = new Route(path, resolver, {
+            'rootPath': this.options.rootPath,
+            'routes': this.routes
+        })
 
-        if(this.routes.find(x => x.pathProto == pathProto)) throw new Error(`A route with path ${pathProto} already exists.`)
 
-        let symbols = []
-        let matcher = []
-        let prio = 0
+        this.routes.push(rt)
 
-        for(let node of removeTrailingSlash(path).split('/').slice(1)) {
-            switch(node[0]) {
-                case(':'):
-                    symbols.push({
-                        'kind': 'Variable',
-                        'name': node.slice(1)
-                    })
-                    matcher.push('*')
-                    prio++
-                    continue;
-                default:
-                    symbols.push({
-                        'kind': 'Symbol',
-                        'value': node
-                    })
-                    matcher.push(node)
-            }
-        }
-
-        this.routes.push(
-            {
-                'prio': prio,
-                'matcher': matcher,
-                'symbols': symbols,
-                'pathProto': pathProto,
-                'resolver': resolver
-            }
-        )
+        return rt
     }
 }
 
