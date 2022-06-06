@@ -3,7 +3,11 @@ const HEADER = {'Content-Type': 'application/json'}
 const { RequestContext } = require('./class/RequestContext.js')
 
 function removeTrailingSlash(string) {
-    return string.replace(/\/*$/g, '')
+    if(string) {
+        return string.replace(/\/*$/g, '')
+    } else {
+        return null
+    }
 }
 
 function testRoute(rt, pathA) {
@@ -34,6 +38,12 @@ class Ribbon {
         this.options = options
         this.options.rootPath = removeTrailingSlash(this.options.rootPath)
 
+        //replace the root path with a dummy if none was set
+        //kinda hacky but itll have to do
+        if(!this.options.rootPath) {
+            this.options.rootPath = ''
+        }
+        
         this.routes = []
         this.server = http.createServer((req, res) => {
             if(!req.url.startsWith(this.options.rootPath)) {
