@@ -2,7 +2,7 @@ class RequestResponse {
     constructor() {
         this.headers = {'Content-Type': 'application/json'}
         this.body = null
-        this.status = 200
+        this.statusCode = 200
         this.raw = false
 
         this.mime = (mime) => {
@@ -36,6 +36,11 @@ class RequestResponse {
             if(mime) {this.mime(mime)}
     
             this.body = data
+            return this
+        }
+
+        this.status = (stat) => {
+            this.statusCode = stat
             return this
         }
 

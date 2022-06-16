@@ -109,12 +109,12 @@ class Ribbon {
                 resp = {
                     'headers': {'Content-Type': 'application/octet-stream'},
                     'raw': true,
-                    'status': 200,
+                    'statusCode': 200,
                     'body': resp
                 }
             }
 
-            res.writeHead(resp.status, resp.headers)
+            res.writeHead(resp.statusCode, resp.headers)
 
             res.write(resp.raw ? JSON.stringify(resp.body) : resp.body)
 
