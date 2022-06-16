@@ -1,5 +1,6 @@
 const http = require('http')
 const { RequestContext } = require('./class/RequestContext.js');
+const { RequestResponse } = require('./class/RequestResponse.js');
 const { Route } = require('./class/Route.js');
 const { removeTrailingSlash } = require('./util/removeTrailingSlash.js')
 
@@ -91,7 +92,7 @@ class Ribbon {
             let resp = null
 
             try {
-                resp = rt.resolver(ctx)
+                resp = rt.resolver(ctx, new RequestResponse())
             } catch(e) {
                 res.writeHead(500, {})
 
@@ -103,9 +104,19 @@ class Ribbon {
                 return;
             }
 
-            res.writeHead(200, HEADER)
+            //If the response wasn't a standard RequestResponse for some reason, we'll have to fill in some data
+            if(resp.constructor.name != 'RequestResponse') {
+                resp = {
+                    'headers': {'Content-Type': 'application/octet-stream'},
+                    'raw': true,
+                    'status': 200,
+                    'body': resp
+                }
+            }
 
-            res.write(JSON.stringify(resp))
+            res.writeHead(resp.status, resp.headers)
+
+            res.write(resp.raw ? JSON.stringify(resp.body) : resp.body)
 
             res.end()
         })
