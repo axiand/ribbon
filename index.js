@@ -1,8 +1,10 @@
 const http = require('http')
-const HEADER = {'Content-Type': 'application/json'}
 const { RequestContext } = require('./class/RequestContext.js');
 const { Route } = require('./class/Route.js');
 const { removeTrailingSlash } = require('./util/removeTrailingSlash.js')
+
+const HEADER = {'Content-Type': 'application/json'}
+const METHODS = ['get', 'head', 'post', 'put', 'delete', 'patch']
 
 function testRoute(rt, pathA) {
     for(let i=0;i<rt.matcher.length;i++) {
@@ -52,7 +54,7 @@ class Ribbon {
             let qs = removeTrailingSlash(req.url).slice(this.options.rootPath.length).split('?')[1]
             let pathA = path.split('/').slice(1)
 
-            //fina candidates with:
+            //find candidates with:
             // - matcher length equal to path array length, and
             // - first matcher element equal to first path array element or *
             let rts = this.routes.filter(x => x.matcher.length == pathA.length).filter(x => x.matcher[0] == pathA[0] || x.matcher[0] == '*')
@@ -107,7 +109,6 @@ class Ribbon {
             'rootPath': this.options.rootPath,
             'routes': this.routes
         })
-
 
         this.routes.push(rt)
 
