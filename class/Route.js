@@ -20,6 +20,15 @@ class Route {
                     matcher.push('*')
                     prio++
                     continue;
+                case('@'):
+                    symbols.push({
+                        'kind': 'Component',
+                        'compo': node.split(" ")[0].slice(1),
+                        'varName': node.split(" ")[1]
+                    })
+                    matcher.push('*')
+                    prio++
+                    continue;
                 default:
                     symbols.push({
                         'kind': 'Symbol',
@@ -41,6 +50,8 @@ class Route {
         this.matcher = matcher
         this.prio = prio
         this.resolver = resolver
+
+        console.log(this)
 
         return this
     }

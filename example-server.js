@@ -11,7 +11,7 @@ const app = new ribbon(4000, true, {
 
 // A basic route:
 // GET YOUR_DOMAIN/api/helloworld
-app.route('GET', '/helloworld/', (ctx, res) => {
+app.Route('GET', '/helloworld/', (ctx, res) => {
     return res.write({'message': 'Hello World!'})
 })
 
@@ -19,7 +19,7 @@ app.route('GET', '/helloworld/', (ctx, res) => {
 // :postId is a variable - if you've ever used
 // express.js or anything of the sort, you'll be
 // familiar with the concept.
-app.route('GET', '/posts/:postId', (ctx, res) => {
+app.Route('GET', '/posts/:postId', (ctx, res) => {
     return res.write({
         'postId': ctx.variables.postId,
         'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, [...]',
@@ -36,13 +36,19 @@ app.route('GET', '/posts/:postId', (ctx, res) => {
 })
 
 // ex. GET or POST /api/echo?query=string
-app.route('ANY', '/echo', (ctx, res) => {
+app.Route('ANY', '/echo', (ctx, res) => {
     return res.write(ctx.query)
     //Here we simply return the query string
     //provided by the user back to them.
     //Ribbon handles all the heavy lifting
     //for you, and converts the query
     //string to a neat object: ctx.query
+})
+
+app.Component('Palette', () => {return 'Hello, World!'})
+
+app.Route('GET', '/palettes/@Palette pal', (ctx, res) => {
+    return res.write(ctx)
 })
 
 //TBC

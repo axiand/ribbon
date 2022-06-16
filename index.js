@@ -1,4 +1,5 @@
-const http = require('http')
+const http = require('http');
+const { Component } = require('./class/Component.js');
 const { RequestContext } = require('./class/RequestContext.js');
 const { RequestResponse } = require('./class/RequestResponse.js');
 const { Route } = require('./class/Route.js');
@@ -86,7 +87,8 @@ class Ribbon {
                 'rt': rt,
                 'pathA': pathA,
                 'query': qs,
-                'req': req
+                'req': req,
+                'compos': this.components
             })
             
             let resp = null
@@ -121,22 +123,36 @@ class Ribbon {
             res.end()
         })
 
+        this.components = []
+
         this.server.listen(port)
     }
 
-    route(method, path, resolver) {
+    Route(method, path, resolver) {
         if(!METHODS.includes(method.toUpperCase())) {
             throw new Error(`Invalid method ${method}`)
         }
 
         let rt = new Route(method, path, resolver, {
             'rootPath': this.options.rootPath,
-            'routesToCheck': this.routes.filter(rt => rt.method == method.toUpperCase() || rt.method == 'ANY')
+            'routesToCheck': this.routes.filter(rt => rt.method == method.toUpperCase() || rt.method == 'ANY'),
         })
 
         this.routes.push(rt)
 
         return rt
+    }
+
+    Component(name, resolver, binds) {
+        if(this.components.some(x => x.name == name)) {
+            throw new Error(`A component with the name ${name} already exists.`)
+        }
+
+        let comp = new Component(name, resolver, binds)
+
+        this.components.push(comp)
+
+        return comp
     }
 }
 
