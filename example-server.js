@@ -10,16 +10,16 @@ const app = new ribbon(4000, true, {
 })
 
 // A basic route:
-// YOUR_DOMAIN/api/helloworld
-app.route('/helloworld/', () => {
+// GET YOUR_DOMAIN/api/helloworld
+app.route('GET', '/helloworld/', () => {
     return {'message': 'Hello World!'}
 })
 
-// ex. /api/posts/4
+// ex. GET /api/posts/4
 // :postId is a variable - if you've ever used
 // express.js or anything of the sort, you'll be
 // familiar with the concept.
-app.route('/posts/:postId', (ctx) => {
+app.route('GET', '/posts/:postId', (ctx) => {
     return {
         'postId': ctx.variables.postId,
         'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, [...]',
@@ -35,8 +35,8 @@ app.route('/posts/:postId', (ctx) => {
     //to see what else it contains.
 })
 
-// ex. /api/echo?query=string
-app.route('/echo', (ctx) => {
+// ex. GET or POST /api/echo?query=string
+app.route('ANY', '/echo', (ctx) => {
     return ctx.query
     //Here we simply return the query string
     //provided by the user back to them.

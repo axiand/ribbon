@@ -1,10 +1,10 @@
 const { removeTrailingSlash } = require('../util/removeTrailingSlash.js')
 
 class Route {
-    constructor(path, resolver, props) {
+    constructor(method, path, resolver, props) {
         let pathProto = `${props.rootPath}${removeTrailingSlash(path)}`
         
-        if(props.routes.some(rt => {return rt.pathProto == pathProto})) {throw new Error(`A route with path ${pathProto} already exists.`)}
+        if(props.routesToCheck.some(rt => {return rt.pathProto == pathProto})) {throw new Error(`A route with path ${pathProto} already exists.`)}
 
         let symbols = []
         let matcher = []
@@ -29,9 +29,11 @@ class Route {
             }
         }
 
-        if(props.routes.some(x => {return x.matcher.join() == matcher.join()})) {
+        if(props.routesToCheck.some(x => {return x.matcher.join() == matcher.join()})) {
             throw new Error(`A route with matcher ${matcher.join('/')} already exists. Try another structure, or make your routes less ambiguous.`)
         }
+
+        this.method = method.toUpperCase()
 
         this.path = path
         this.pathProto = pathProto

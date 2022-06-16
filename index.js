@@ -4,7 +4,7 @@ const { Route } = require('./class/Route.js');
 const { removeTrailingSlash } = require('./util/removeTrailingSlash.js')
 
 const HEADER = {'Content-Type': 'application/json'}
-const METHODS = ['get', 'head', 'post', 'put', 'delete', 'patch']
+const METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'PATCH', 'ANY']
 
 function testRoute(rt, pathA) {
     for(let i=0;i<rt.matcher.length;i++) {
@@ -41,7 +41,7 @@ class Ribbon {
         }
         
         this.routes = []
-        this.server = http.createServer((req, res) => {
+        this.server = http.createServer(async (req, res) => {
             if(!req.url.startsWith(this.options.rootPath)) {
                 res.writeHead(404, HEADER)
 
@@ -56,19 +56,28 @@ class Ribbon {
 
             //find candidates with:
             // - matcher length equal to path array length, and
-            // - first matcher element equal to first path array element or *
-            let rts = this.routes.filter(x => x.matcher.length == pathA.length).filter(x => x.matcher[0] == pathA[0] || x.matcher[0] == '*')
+            // - first matcher element equal to first path array element or *, and
+            let rts = this.routes
+            .filter(x => x.matcher.length == pathA.length)
+            .filter(x => x.matcher[0] == pathA[0] || x.matcher[0] == '*')
             
 
             //sort candidates by priority - amount of wildcards
             rts = rts.sort((a, b) => a.prio - b.prio)
             let rt = testCandidateRoutes(rts, pathA)
 
-             if(!rt) {
-                 res.writeHead(404, HEADER)
+            if(!rt) {
+                 res.writeHead(404, {})
 
                  res.end()
                  return
+            }
+
+            if(req.method != rt.method && rt.method != 'ANY') {
+                res.writeHead(405, {'Allow': rt.method.toUpperCase()})
+
+                res.end()
+                return
             }
 
             //pass on the variables
@@ -84,7 +93,7 @@ class Ribbon {
             try {
                 resp = rt.resolver(ctx)
             } catch(e) {
-                res.writeHead(500, HEADER)
+                res.writeHead(500, {})
 
                 res.write('500 Internal Server Error')
 
@@ -104,10 +113,14 @@ class Ribbon {
         this.server.listen(port)
     }
 
-    route(path, resolver) {
-        let rt = new Route(path, resolver, {
+    route(method, path, resolver) {
+        if(!METHODS.includes(method.toUpperCase())) {
+            throw new Error(`Invalid method ${method}`)
+        }
+
+        let rt = new Route(method, path, resolver, {
             'rootPath': this.options.rootPath,
-            'routes': this.routes
+            'routesToCheck': this.routes.filter(rt => rt.method == method.toUpperCase() || rt.method == 'ANY')
         })
 
         this.routes.push(rt)
