@@ -1,6 +1,8 @@
 # Ribbon
 APIs made easy
 
+Development of the project has continued over at axiand/origami, featuring a complete rewrite from scratch to make the project structure more sensible - https://github.com/axiand/origami
+
 # CURRENTLY UNSTABLE
 Ribbon is in a very early state and is under active development. Things might break or generally not work as intended. Use at your own risk.
 
